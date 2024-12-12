@@ -1,45 +1,71 @@
-const redis = require('redis');
+import redis from 'redis';
+import { promisify } from 'util';
 
+/**
+ * This class provides methods for interacting with a Redis server.
+ * It manages the connection state and offers asynchronous operations 
+ * for getting, setting, and deleting key-value pairs.
+ */
 class RedisClient {
   constructor() {
     this.client = redis.createClient();
+    this.conn = false; 
 
-    this.client.on('error', (err) => {
-      console.error('Redis Client Error', err);
+    // Handle connection events
+    this.client.on('error', (error) => {
+      this.conn = false;
+      console.log(`Redis client not connected to the server: ${error.message || error.toString()}`);
+    });
+
+    this.client.on('connect', () => {
+      this.conn = true;
     });
   }
 
   isAlive() {
-    return this.client.connected;
+    return this.conn;
   }
 
+  /**
+   * Asynchronously retrieves the value associated with the given key from Redis.
+   * 
+   * @param {string} key - The key of the value to retrieve.
+   * @returns {Promise<string|null>} A Promise that resolves to the value associated 
+   *                                with the key, or null if the key does not exist.
+   */
   async get(key) {
-    try {
-      const value = await this.client.get(key);
-      return value;
-    } catch (error) {
-      console.error('Error getting value from Redis:', error);
-      return null;
-    }
+    const asyncGet = promisify(this.client.GET).bind(this.client);
+    const result = await asyncGet(key);
+    return result;
   }
 
+  /**
+   * Asynchronously sets a key-value pair in Redis with an optional expiration time (TTL).
+   * 
+   * @param {string} key - The key of the element to set.
+   * @param {string} value - The value to set for the key.
+   * @param {number} duration - The TTL for the key in seconds (optional).
+   */
   async set(key, value, duration) {
-    try {
-      await this.client.set(key, value, 'EX', duration);
-    } catch (error) {
-      console.error('Error setting value in Redis:', error);
+    const asyncSet = promisify(this.client.SET).bind(this.client);
+    if (duration) {
+      await asyncSet(key, value, 'EX', duration); 
+    } else {
+      await asyncSet(key, value);
     }
   }
 
+  /**
+   * Asynchronously deletes the key and its associated value from Redis.
+   * 
+   * @param {string} key - The key of the element to delete.
+   */
   async del(key) {
-    try {
-      await this.client.del(key);
-    } catch (error) {
-      console.error('Error deleting value from Redis:', error);
-    }
+    const asyncDel = promisify(this.client.del).bind(this.client);
+    await asyncDel(key);
   }
 }
 
 const redisClient = new RedisClient();
 
-module.exports = redisClient;
+export default redisClient;
