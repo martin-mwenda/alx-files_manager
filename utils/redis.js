@@ -1,3 +1,5 @@
+#!/usr/bin/node
+
 import redis from 'redis';
 import { promisify } from 'util';
 
@@ -22,6 +24,11 @@ class RedisClient {
     });
   }
 
+  /**
+   * Checks if the Redis client is currently connected to the server.
+   * 
+   * @returns {boolean} True if connected, false otherwise.
+   */
   isAlive() {
     return this.conn;
   }
