@@ -35,7 +35,6 @@ function routerController(app) {
 
   router.get('/disconnect', (req, res) => {
     AuthController.getDisconnect(req, res);
-  });
     UsersController.getMe(req, res);
   });
 
