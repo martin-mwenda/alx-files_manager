@@ -1,16 +1,16 @@
 #!/usr/bin/node
 
 import express from 'express';
-import AppController from '../controllers/AppController.js';
-import UsersController from '../controllers/UsersController.js';
-import AuthController from '../controllers/AuthController.js';
-import FilesController from '../controllers/FilesController.js';
+import AppController from '../controllers/AppController';
+import UsersController from '../controllers/UsersController';
+import AuthController from '../controllers/AuthController';
+import FilesController from '../controllers/FilesController';
 
 function routerController(app) {
   const router = express.Router();
   app.use('/', router);
 
-   // Route to check if redis and mongodb connectivity are active
+  // Route to check if redis and mongodb connectivity are active
   router.get('/status', (req, res) => {
     AppController.getStatus(req, res);
   });
@@ -64,7 +64,6 @@ function routerController(app) {
   router.get('/files/:id/data', (req, res) => {
     FilesController.getFile(req, res);
   });
-
 }
 
 export default routerController;

@@ -20,7 +20,7 @@ const isValidId = (id) => {
   return true;
 };
 
-async function getUser (query) {
+async function getUser(query) {
   const user = await (await dbClient.usersCollection.findOne(query));
   return user;
 }
@@ -42,7 +42,7 @@ fileQueue.process(async (job) => {
 
   const file = await fileUtils.getFile({
     _id: ObjectId(fileId),
-    userId: ObjectId(userId)
+    userId: ObjectId(userId),
   });
 
   if (!file) throw new Error('File not found');
@@ -74,7 +74,7 @@ userQueue.process(async (job) => {
   if (!isValidId(userId)) throw new Error('User not found');
 
   const user = await getUser({
-    _id: ObjectId(userId)
+    _id: ObjectId(userId),
   });
 
   if (!user) throw new Error('User not found');
